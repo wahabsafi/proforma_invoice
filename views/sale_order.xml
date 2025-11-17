@@ -1,0 +1,29 @@
+<odoo>
+    <record id="view_order_form_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+        <xpath expr="//field[@name='payment_term_id']" position="after">
+        
+            <field name="our_ref" />
+            <field name="your_ref" />
+            <field name="customer_national_id" />
+            <field name="customer_code" />
+            <field name="shipment_method" />
+            <field name="shipment_ref" />
+            <field name="payment_condition" />
+            <field name="country_of_origin" />
+            <field name="destination_of_goods" />
+            <field name="total_pallet" />
+            <field name="net_weight" />
+            <field name="gross_weight"/>
+            <field name="hs_code"/>
+            <field name="packing_charges"/>
+            <field name="transporter"/>
+            <field name="transport_cost"/>
+        </xpath>
+        </field>
+    </record>
+        
+</odoo>

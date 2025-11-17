@@ -1,0 +1,218 @@
+<odoo>
+  <template id="report_saleorder_pro_forma_document">
+    <style>
+      /* ----- BASIC PDF-SAFE CSS ----- */
+     
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+      }
+      th, td {
+        border: 1px solid #000;
+        padding: 5px;
+        text-align: center;
+        vertical-align: top;
+      }
+      .no-border td, .no-border th {
+        border: none !important;
+      }
+      .left { text-align: left !important; }
+      .right { text-align: right !important; }
+      .center { text-align: center !important; }
+      .bold { font-weight: bold; }
+      .mt32 { margin-top: 32px; }
+      img.company-logo {
+        max-height: 45px;
+      }
+    </style>
+
+    <div class="page">
+
+      <!-- ===================== HEADER ===================== -->
+      <table class="no-border">
+        <tr>
+          <td style="width:30%; vertical-align:top;">
+            <img
+                t-if="doc.company_id.logo"
+                t-att-src="image_data_uri(doc.company_id.logo)"
+                class="company-logo"
+            />
+          </td>
+
+          <td style="width:70%; vertical-align:top;" class="left">
+            <strong>Address:</strong>
+            <t t-esc="doc.company_id.partner_id.contact_address_complete" /><br
+                        />
+            <strong>Tel:</strong>
+            <t t-esc="doc.company_id.phone or ''" /><br />
+            <strong>Email:</strong>
+            <t t-esc="doc.company_id.email or ''" />
+          </td>
+        </tr>
+      </table>
+
+      <hr /><hr />
+
+      <!-- ===================== TITLE ===================== -->
+      <h3 style="text-align:center; text-transform:uppercase; margin:20px 0;">
+        Proforma Invoice
+      </h3>
+
+      <!-- ===================== CUSTOMER BLOCK ===================== -->
+      <table class="no-border">
+        <tr>
+          <!-- LEFT COLUMN -->
+          <td style="width:33%;" class="left">
+            <p><strong>Bill to</strong></p>
+            <p><strong>Consignee:</strong> <t t-esc="doc.partner_id.name" /></p>
+            <p><strong>National ID:</strong> <t
+                                t-esc="doc.customer_national_id or ''"
+                            /></p>
+          </td>
+
+          <!-- MIDDLE COLUMN -->
+          <td style="width:33%;" class="left">
+            <p><strong>Address:</strong></p>
+            <t t-esc="doc.partner_id.contact_address_complete or ''" />
+          </td>
+
+          <!-- RIGHT COLUMN -->
+          <td style="width:33%; text-align:center;" class="center">
+            <p><strong>NO:</strong> <t t-esc="doc.name or '---'" /></p>
+            <p>
+              <strong>Date:</strong>
+              <t
+                                t-esc="doc.date_order"
+                                t-options="{'widget':'date','format':'yyyy/MM/dd'}"
+                            />
+            </p>
+            <p><strong>Destination</strong></p>
+            <p><t t-esc="doc.partner_shipping_id.contact_address or ''" /></p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ===================== REFERENCES TABLE ===================== -->
+      <table>
+        <thead>
+          <tr>
+            <th>Our Ref.</th>
+            <th>Your Ref.</th>
+            <th>Customer Code</th>
+            <th>Delivery Terms</th>
+            <th>Shipment Method</th>
+            <th>Shipment Ref.</th>
+            <th>Payment Cond.</th>
+            <th>Currency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><t t-esc="doc.our_ref or ''" /></td>
+            <td><t t-esc="doc.your_ref or ''" /></td>
+            <td><t t-esc="doc.customer_code or ''" /></td>
+            <td><t t-esc="doc.incoterm.name or ''" /></td>
+            <td><t t-esc="doc.shipment_method or ''" /></td>
+            <td><t t-esc="doc.shipment_ref or ''" /></td>
+            <td><t t-esc="doc.payment_condition or ''" /></td>
+            <td><t t-esc="doc.currency_id.name or ''" /></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== ITEMS TABLE ===================== -->
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Total Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <t t-foreach="doc.order_line" t-as="l">
+            <tr>
+              <td><t t-esc="l.sequence or loop.index" /></td>
+              <td><t t-esc="l.name" /></td>
+              <td><t t-esc="l.product_uom_qty" /></td>
+              <td><t t-esc="l.price_unit" /></td>
+              <td><t t-esc="l.price_subtotal" /></td>
+            </tr>
+          </t>
+        </tbody>
+      </table>
+
+      <!-- ===================== TOTALS ===================== -->
+      <table style="text-align:center;">
+        <tr>
+          <td class="center"><strong>Total</strong></td>
+          <td class="center"><strong> <t t-esc="doc.amount_untaxed"/> <t t-esc="doc.currency_id.name"/></strong> </td>
+        </tr>
+        <tr>
+          <td class="center">Packing Charges</td>
+          <td class="center"><t t-esc="doc.packing_charges" /> <t t-esc="doc.currency_id.name"/></td>
+        </tr>
+        <tr>
+          <td class="center">Transport Cost</td>
+          <td class="center"> <t t-esc="doc.transport_cost" /> <t t-esc="doc.currency_id.name"/></td>
+        </tr>
+        <tr>
+          <td class="center"><strong>Final Amount</strong></td>
+          <td class="center"> <strong>  <t t-esc="doc.final_amount"/> <t t-esc="doc.currency_id.name"/> </strong> </td>
+     
+        </tr>
+      </table>
+
+      <!-- ===================== CUSTOMS INFO ===================== -->
+      <table >
+        <tr>
+          <td class="left">
+            Our goods are not subject to ADR and RID according to provision n.598 , chapter 3.3.1.<br/>
+            <strong>COUNTRY OF ORIGIN OF THE GOODS:</strong> <t t-esc="doc.country_of_origin or '' "/><br />
+            <strong>DESTINATION OF THE GOODS:</strong>
+            <t t-esc="doc.destination_of_goods or ''" />
+          </td>
+        </tr>
+
+        <tr>
+          <td class="left">
+            <strong>Total Pallet Number:</strong> <t
+                            t-esc="doc.total_pallet"
+                        /><br />
+            <strong>Total Net Weight:</strong> <t
+                            t-esc="doc.net_weight"
+                        /> Kg<br />
+            <strong>Total Gross Weight:</strong> <t
+                            t-esc="doc.gross_weight"
+                        /> Kg<br />
+            <strong>Customs Code:</strong> <t t-esc="doc.hs_code or '' " />
+          </td>
+        </tr>
+        <tr>
+        <td class="left">
+          <strong>Trasportatore / Transporter:</strong> <t t-esc="doc.transporter"/>
+        </td>
+      </tr>
+
+        <tr>
+          <td class="left">
+            This transaction is governed by our terms and conditions.
+            Any other condition could prevail only after written agreement on our part.
+          </td>
+        </tr>
+      </table>
+    </div>
+  </template>
+  <template id="report_saleorder_pro_forma"> 
+  
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="doc"> 
+            <t t-set="lang" t-value="doc.company_id.partner_id.sudo().lang"/>
+            <t t-call="proforma_invoice.report_saleorder_pro_forma_document" t-lang="lang"/> 
+        </t> 
+    </t> 
+    </template>
+</odoo>
